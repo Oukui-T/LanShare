@@ -15,7 +15,7 @@ strict conditions and restrictions:
 
 1. 授予的许可范围 (GRANT OF RIGHTS)
    a. 【发布版使用】：允许免费下载、安装和运行本软件的官方发布版二进制可执行程序。
-   b. 【源码查阅】：允许出于学习、研究、安全审计之目的下载与查阅本软件的源代码。
+   b. 【源码查阅】：允许出于学习、研究、代码审计之目的下载与查阅本软件的源代码。
 
 2. 明确禁止的事项与限制条件 (RESTRICTIONS & PROHIBITED USES)
    a. 【禁止修改】：未经版权所有者明确书面许可，任何人不得对本软件的源代码或二进制程序进行任何形式的修改、二次开发、逆向工程、反编译、反汇编或创建衍生版本。
@@ -23,11 +23,24 @@ strict conditions and restrictions:
    c. 【法律与国家安全合规】：严禁将本软件用于任何违反中华人民共和国法律法规、国际法准则及任何主权国家或地区法律的事项；严禁用于任何危害中华人民共和国及任何国家国家安全、公共安全或社会秩序的活动。
    d. 【组织与公司规定合规】：使用者在任何机构、企业或企事业单位内部运行本软件时，必须严格遵守使用者所在公司的信息安全、资产管理及网络使用规范，严禁违背所在雇主的合规要求。
 
-3. 版权声明保留 (COPYRIGHT RETENTION)
-   在任何形式的传播、引用或使用过程中，必须在所有副本中完整保留上述版权声明以及本完整的许可证条款。
+3. 作者署名权与版权声明保留 (ATTRIBUTION & COPYRIGHT RETENTION - 仿照 MIT 强化)
+   The above copyright notice, this permission notice, and explicit attribution to 
+   the original author (Jiapeng Tian) shall be included in all copies or substantial 
+   portions of the Software.
+   a. 任何人在获取、引用、传播、展示或分发本软件时，必须在所有副本中完整保留顶部的版权声明、作者（Jiapeng Tian）的原始署名以及本许可证全文。
+   b. 严禁以任何手段删除、篡改、隐匿或遮挡原作者署名与版权标识，严禁以任何直接或暗示的方式声称本软件为他人原创或第三方所拥有。
 
-4. 免责声明 (DISCLAIMER OF WARRANTY & LIMITATION OF LIABILITY)
-   本软件按“现状”（AS IS）提供，不提供任何形式的明示或暗示担保，包括但不限于适销性、特定用途适用性或无侵权保证。
-   在任何情况下，版权所有者（Jiapeng Tian）均不对因使用或无法使用本软件所导致的任何直接、间接、附带、特殊、惩罚性或后果性损害（包括但不限于数据丢失、业务中断、网络故障或法律责任）承担任何经济赔偿或法律责任。
+4. 免责声明与责任限制 (DISCLAIMER OF WARRANTY & LIMITATION OF LIABILITY - 遵循 MIT 国际标准)
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS (JIAPENG TIAN) BE LIABLE 
+   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+   OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+   a. 【无担保声明】：本软件按“现状”（AS IS）提供，版权所有者（Jiapeng Tian）不提供任何形式的明示或暗示保证（包括但不限于对适销性、特定用途适用性、系统稳定性或无侵权之保证）。
+   b. 【全面免责声明】：在任何法律管辖区、任何诉讼事由（无论是合同违约、侵权行为还是过失责任）下，版权所有者均不对任何人因安装、使用、无法使用本软件，或因数据丢失、传输中断、硬件损坏、网络故障、涉嫌违法侵权等引发的任何直接、间接、附带、特殊、惩罚性或后果性损失承担任何经济赔偿或法律责任。
 
 ==============================================================================
