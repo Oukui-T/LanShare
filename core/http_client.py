@@ -392,10 +392,7 @@ class UploadWorker(threading.Thread):
             if self.on_finished: self.on_finished(True, f"推送上传成功 ({local_size} 字节)")
             return
 
-        target_url = f"{self.server_url}/upload/{encoded_rel_path}"
-        if overwrite_flag:
-            target_url += "?overwrite=1"
-        
+        base_target_url = f"{self.server_url}/upload/{encoded_rel_path}"
         
         try:
             CREATE_NO_WINDOW = 0x08000000
@@ -409,8 +406,17 @@ class UploadWorker(threading.Thread):
                     "curl.exe", "--noproxy", "*", "-f", "-T", self.local_filepath,
                     "-H", f"X-Device-Name: {encoded_device_name}"
                 ]
-                if current_remote > 0 and current_remote < local_size:
-                    cmd.extend(["-C", str(current_remote)])
+                
+                target_url = base_target_url
+                if overwrite_flag:
+                    target_url += "?overwrite=1"
+                    # 一旦发起覆盖操作，禁止使用 -C 断点参数，必须从头传输整个文件
+                    # 同时单次消耗掉此标志位：如果传输意外中断，下次重试时将自然降级为普通的断点续传，防止无限删文件
+                    overwrite_flag = False
+                else:
+                    if current_remote > 0 and current_remote < local_size:
+                        cmd.extend(["-C", str(current_remote)])
+                        
                 cmd.extend(["-s", "--show-error", target_url])
 
                 self._proc = subprocess.Popen(
