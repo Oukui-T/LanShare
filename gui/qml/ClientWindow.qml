@@ -55,6 +55,9 @@ ApplicationWindow {
             toast.opacity = 0.95;
             toastTimer.restart();
         }
+        function onBreakpointPromptRequested(filename, local_size, remote_size) {
+            breakpointDialog.openDialog(filename, local_size, remote_size);
+        }
     }
 
     ColumnLayout {
@@ -1588,6 +1591,155 @@ ApplicationWindow {
                         onClicked: {
                             if (bridge) bridge.submitAuthCode(authCodeInput.text.trim());
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    // Fluent 风格的模态断点决策弹窗
+    Dialog {
+        id: breakpointDialog
+        width: 480
+        height: 280
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        title: "检测到文件续传中断"
+
+        property string currentFilename: ""
+        property int currentLocalSize: 0
+        property int currentRemoteSize: 0
+
+        function openDialog(filename, local_size, remote_size) {
+            currentFilename = filename;
+            currentLocalSize = local_size;
+            currentRemoteSize = remote_size;
+            open();
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+            if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(2) + " MB";
+            return (bytes / 1024 / 1024 / 1024).toFixed(2) + " GB";
+        }
+
+        background: Rectangle {
+            color: root.style.bgApp
+            radius: root.style.radiusMd
+            border.color: root.style.borderCard
+        }
+
+        header: Rectangle {
+            color: "transparent"
+            height: 50
+            Text {
+                anchors.left: parent.left
+                anchors.leftMargin: 20
+                anchors.verticalCenter: parent.verticalCenter
+                text: breakpointDialog.title
+                font.pixelSize: 16
+                font.bold: true
+                color: root.style.textPrimary
+            }
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 15
+            anchors.margins: 20
+
+            Text {
+                Layout.fillWidth: true
+                text: "正在传输的文件在目标端已存在部分内容，您希望如何处理？"
+                color: root.style.textSecondary
+                font.pixelSize: 13
+                wrapMode: Text.WordWrap
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                height: 80
+                color: root.style.bgInput
+                radius: root.style.radiusSm
+                border.color: root.style.borderCard
+                
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 5
+                    
+                    Text {
+                        text: "文件名称: " + breakpointDialog.currentFilename
+                        color: root.style.textPrimary
+                        font.pixelSize: 12
+                        font.bold: true
+                        elide: Text.ElideMiddle
+                        Layout.fillWidth: true
+                    }
+                    Text {
+                        text: "完整大小: " + breakpointDialog.formatBytes(breakpointDialog.currentRemoteSize)
+                        color: root.style.textSecondary
+                        font.pixelSize: 12
+                    }
+                    Text {
+                        text: "已传大小: " + breakpointDialog.formatBytes(breakpointDialog.currentLocalSize) + "  (" + Math.round(breakpointDialog.currentLocalSize / Math.max(1, breakpointDialog.currentRemoteSize) * 100) + "%)"
+                        color: root.style.primary
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+                }
+            }
+        }
+
+        footer: Rectangle {
+            color: "transparent"
+            height: 60
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 15
+                spacing: 10
+
+                Button {
+                    Layout.fillWidth: true
+                    text: "⏭️ 跳过"
+                    font.pixelSize: 13
+                    onClicked: {
+                        if (bridge) bridge.resolveBreakpointPrompt("skip");
+                        breakpointDialog.close();
+                    }
+                }
+
+                Button {
+                    Layout.fillWidth: true
+                    text: "🗑️ 覆盖重传"
+                    font.pixelSize: 13
+                    onClicked: {
+                        if (bridge) bridge.resolveBreakpointPrompt("overwrite");
+                        breakpointDialog.close();
+                    }
+                }
+
+                Button {
+                    Layout.fillWidth: true
+                    text: "▶️ 断点续传"
+                    font.pixelSize: 13
+                    font.bold: true
+                    background: Rectangle {
+                        color: root.style.primary
+                        radius: root.style.radiusSm
+                    }
+                    contentItem: Text {
+                        text: "▶️ 断点续传"
+                        color: "white"
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    onClicked: {
+                        if (bridge) bridge.resolveBreakpointPrompt("resume");
+                        breakpointDialog.close();
                     }
                 }
             }

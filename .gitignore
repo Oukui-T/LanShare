@@ -16,6 +16,7 @@ tests/
 # 5. Python 运行期缓存与编译字节码 (实际产生)
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # 6. 文档过滤：忽略 docs 下的开发规格与内部设计文档，仅保留用户使用手册目录 (docs/manual)
 docs/*
