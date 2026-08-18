@@ -105,7 +105,7 @@ LanShare/
 │   ├── bridge_client.py        # 客户端 Python-QML 交互桥接对象 (任务排队与状态机)
 │   └── qml/                    # 现代化 Fluent 风格 QML 源码 (Server / Client / Style)
 ├── dist/                       # Nuitka 独立免安装可执行程序输出目录
-├── docs/specs/                 # 详细技术架构设计规格书
+├── docs/manual/                # 软件使用说明手册 (USER_MANUAL.md)
 ├── tests/                      # 自动化回归测试套件 (23项测试全覆盖)
 ├── build_client.py             # 客户端 Nuitka 独立编译与 PE 修复脚本
 ├── build_server.py             # 服务端 Nuitka 独立编译与 PE 修复脚本
