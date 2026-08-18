@@ -1,0 +1,18 @@
+﻿# 1. 局部 Python 虚拟环境 (实际存在)
+.venv/
+
+# 2. 局部 Agent 与 Skill 技能包 (实际存在)
+.agents/
+
+# 3. Nuitka 编译封装产物与绿色运行包 (实际存在及构建产生)
+dist/
+*.dist/
+*.build/
+*.onefile-build/
+
+# 4. 自动化测试套件与测试数据目录 (实际存在)
+tests/
+
+# 5. Python 运行期缓存与编译字节码 (实际产生)
+__pycache__/
+*.pyc
