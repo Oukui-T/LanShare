@@ -103,14 +103,31 @@ LanShare/
 ├── gui/                        # 交互与图形界面层
 │   ├── bridge_server.py        # 服务端 Python-QML 交互桥接对象
 │   ├── bridge_client.py        # 客户端 Python-QML 交互桥接对象 (任务排队与状态机)
-│   └── qml/                    # 现代化 Fluent 风格 QML 源码 (Server / Client / Style)
-├── dist/                       # Nuitka 独立免安装可执行程序输出目录
-├── docs/manual/                # 软件使用说明手册 (USER_MANUAL.md)
+│   └── qml/                    # 现代化 Fluent 风格 QML 源码
+│       ├── ClientWindow.qml    # 客户端主界面
+│       ├── ServerWindow.qml    # 服务端主界面
+│       └── Style.qml           # 统一设计系统与主题配色
+├── icon/                       # 应用程序高清图标与设计素材
+│   ├── client.ico / client.png # 客户端专属图标
+│   └── server.ico / server.png # 服务端专属图标
+├── docs/                       # 项目文档目录
+│   └── manual/                 # 软件使用手册
+│       └── USER_MANUAL.md      # 详尽的软件使用说明书
 ├── tests/                      # 自动化回归测试套件 (23项测试全覆盖)
+│   ├── test_auth.py            # 权限与验证码测试
+│   ├── test_core.py            # 核心网络与传输引擎测试
+│   ├── test_folder_transfer.py # 文件夹整包递归传输测试
+│   ├── test_shortcut_resolver.py # 快捷方式穿透解析测试
+│   ├── test_bridge.py          # 界面桥接与目录导航测试
+│   └── test_transfer_bugfixes.py # 传输边界与稳定性测试
+├── dist/                       # Nuitka 独立免安装可执行程序输出目录
 ├── build_client.py             # 客户端 Nuitka 独立编译与 PE 修复脚本
 ├── build_server.py             # 服务端 Nuitka 独立编译与 PE 修复脚本
 ├── client_app.py               # 客户端主程序入口
-└── server_app.py               # 服务端主程序入口
+├── server_app.py               # 服务端主程序入口
+├── LICENSE                     # 软件非商业受限许可证与使用条款
+├── README.md                   # 项目综合说明文档
+└── .gitignore                  # Git 版本控制忽略规则配置
 ```
 
 ---
