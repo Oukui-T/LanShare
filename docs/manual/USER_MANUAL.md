@@ -35,13 +35,13 @@
 
 ```text
 LanShare_Release/
-├── 📁 LanShareClient/                 # 【客户端程序包】（安装在普通电脑上，用于接收或推送文件）
-│   ├── LanShareClient.exe            # 纯净 GUI 运行程序（无命令行黑框，日常推荐使用）
-│   └── LanShareClient_debug.exe      # 调试版运行程序（带黑框控制台日志，用于排查网络问题）
+├── 📁 client_app.dist/                 # 【客户端程序包】（用于普通局域网电脑，接收或推送文件）
+│   ├── LanShareClient.exe             # 纯净 GUI 运行程序（无命令行黑框，日常推荐使用）
+│   └── LanShareClient_debug.exe       # 调试版运行程序（带黑框控制台日志，用于排查网络问题）
 │
-└── 📁 LanShareServer/                 # 【服务端程序包】（安装在存放共享文件的主机/服务器上）
-    ├── LanShareServer.exe            # 纯净 GUI 运行程序（无命令行黑框，日常推荐使用）
-    └── LanShareServer_debug.exe      # 调试版运行程序（带黑框控制台日志，用于排查网络问题）
+└── 📁 server_app.dist/                 # 【服务端程序包】（用于存放共享文件的主机/服务器）
+    ├── LanShareServer.exe             # 纯净 GUI 运行程序（无命令行黑框，日常推荐使用）
+    └── LanShareServer_debug.exe       # 调试版运行程序（带黑框控制台日志，用于排查网络问题）
 ```
 
 > ⚠️ **权限说明**：
