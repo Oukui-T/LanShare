@@ -1703,8 +1703,19 @@ ApplicationWindow {
 
                 Button {
                     Layout.fillWidth: true
-                    text: "⏭️ 跳过"
                     font.pixelSize: 13
+                    font.bold: true
+                    background: Rectangle {
+                        color: root.style.textSecondary
+                        radius: root.style.radiusSm
+                    }
+                    contentItem: Text {
+                        text: "⏭️ 跳过"
+                        color: "white"
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     onClicked: {
                         if (bridge) bridge.resolveBreakpointPrompt("skip");
                         breakpointDialog.close();
@@ -1713,8 +1724,19 @@ ApplicationWindow {
 
                 Button {
                     Layout.fillWidth: true
-                    text: "🗑️ 覆盖重传"
                     font.pixelSize: 13
+                    font.bold: true
+                    background: Rectangle {
+                        color: root.style.error
+                        radius: root.style.radiusSm
+                    }
+                    contentItem: Text {
+                        text: "🗑️ 覆盖重传"
+                        color: "white"
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     onClicked: {
                         if (bridge) bridge.resolveBreakpointPrompt("overwrite");
                         breakpointDialog.close();
