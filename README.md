@@ -139,6 +139,6 @@ LanShare/
 
 ---
 
-## 📄 开源许可证
+## 📄 软件许可证与使用条款
 
-本项目基于 [MIT License](LICENSE) 开源。
+本项目基于 [LanShare Custom License (非商业受限许可证)](LICENSE) 发布。严禁用于任何商业盈利、代码二次修改或违规违法行为。
