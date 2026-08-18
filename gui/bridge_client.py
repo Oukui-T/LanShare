@@ -70,6 +70,8 @@ class ClientBridge(QObject):
     _sigProgress = Signal(int, int, float, str)
     _sigFinished = Signal(bool, str)
     _sigFolderTasksReady = Signal(list, bool, str)    # (tasks, is_folder, folder_name)
+    
+    breakpointPromptRequested = Signal(str, int, int) # (filename, local_size, remote_size)
 
     # QML 属性变更通知
     targetAddressChanged = Signal()
@@ -141,6 +143,13 @@ class ClientBridge(QObject):
         self._auth_error_message = ""
         self._current_auth_req_id = ""
         self._auth_poll_thread = None
+        
+        self._breakpoint_choice_event = threading.Event()
+        self._breakpoint_choice = "resume"
+        self._pending_breakpoint_events = []
+        self._breakpoint_prompt_active = False
+
+        self._transfer_queue = []
         self._is_polling_cancelled = False
         
         # 传输状态与时间统计
@@ -1087,7 +1096,8 @@ class ClientBridge(QObject):
                 expected_size=task.get("size", 0),
                 device_name=self._device_name,
                 on_progress=_on_progress,
-                on_finished=_on_finished
+                on_finished=_on_finished,
+                on_breakpoint_prompt=self._ask_breakpoint_sync
             )
         else:
             self._active_worker = UploadWorker(
@@ -1096,7 +1106,8 @@ class ClientBridge(QObject):
                 rel_path=task.get("rel_path", task["filename"]),
                 device_name=self._device_name,
                 on_progress=_on_progress,
-                on_finished=_on_finished
+                on_finished=_on_finished,
+                on_breakpoint_prompt=self._ask_breakpoint_sync
             )
         self._active_worker.start()
 
@@ -1162,6 +1173,52 @@ class ClientBridge(QObject):
             self.transferProgressChanged.emit()
             self.transferTimeChanged.emit()
             self.transferQueueChanged.emit()
+
+    @Slot(str)
+    def resolveBreakpointPrompt(self, choice: str):
+        self._breakpoint_choice = choice
+        self._breakpoint_choice_event.set()
+
+    def _ask_breakpoint_sync(self, filename: str, local_size: int, remote_size: int) -> str:
+        """阻塞当前 worker 线程并弹出交互，排队处理并发"""
+        event = threading.Event()
+        result = ["resume"]
+        
+        self._pending_breakpoint_events.append({
+            "filename": filename,
+            "local_size": local_size,
+            "remote_size": remote_size,
+            "event": event,
+            "result": result
+        })
+        
+        if not self._breakpoint_prompt_active:
+            self._process_next_breakpoint()
+            
+        event.wait()
+        return result[0]
+        
+    def _process_next_breakpoint(self):
+        if not self._pending_breakpoint_events:
+            self._breakpoint_prompt_active = False
+            return
+            
+        self._breakpoint_prompt_active = True
+        item = self._pending_breakpoint_events[0]
+        
+        self._breakpoint_choice_event.clear()
+        self._breakpoint_choice = "resume"
+        
+        self.breakpointPromptRequested.emit(item["filename"], item["local_size"], item["remote_size"])
+        
+        def wait_user():
+            self._breakpoint_choice_event.wait()
+            item["result"][0] = self._breakpoint_choice
+            item["event"].set()
+            self._pending_breakpoint_events.pop(0)
+            self._process_next_breakpoint()
+            
+        threading.Thread(target=wait_user, daemon=True).start()
 
     @Slot()
     def cancelTransfer(self):

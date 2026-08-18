@@ -9,6 +9,7 @@ from typing import Callable, Optional, List, Dict, Any
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 from core.auth import ServerAuthManager
+from core.hash_utils import get_head_hash, get_breakpoint_prefix_hash, get_sample_hash
 
 __version__ = "4.2"
 DISCONNECT_ERRNOS = {10053, 10054, 10058}
@@ -121,6 +122,37 @@ class LanShareRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(res)
             return
 
+        # 3.5 API: 探测特定文件的断点哈希信息
+        if path == "/api/file/probe":
+            if not self._is_client_authorized(device_name):
+                self._send_json({"error": "unauthorized"}, code=403)
+                return
+            
+            target_file = urllib.parse.unquote(query.get("path", [""])[0]).strip().strip("/\\")
+            if not target_file:
+                self._send_json({"error": "invalid path"}, code=400)
+                return
+                
+            base_dir = os.path.abspath(LanShareRequestHandler.share_dir)
+            full_path = os.path.abspath(os.path.join(base_dir, target_file))
+            try:
+                if os.path.commonpath([base_dir, full_path]) != base_dir or not os.path.exists(full_path):
+                    self._send_json({"error": "not found", "size": 0}, code=404)
+                    return
+            except ValueError:
+                self._send_json({"error": "invalid path"}, code=400)
+                return
+                
+            offset = int(query.get("offset", ["0"])[0])
+            st = os.stat(full_path)
+            self._send_json({
+                "size": st.st_size,
+                "head_hash": get_head_hash(full_path),
+                "prefix_hash": get_breakpoint_prefix_hash(full_path, offset) if offset > 0 else "",
+                "sample_hash": get_sample_hash(full_path)
+            })
+            return
+
         # 4. API: 共享文件清单列表 (严格安全权限拦截与子目录遍历)
         if path == "/api/files":
             if not self._is_client_authorized(device_name):
@@ -167,7 +199,9 @@ class LanShareRequestHandler(SimpleHTTPRequestHandler):
                                 "rel_path": rel_item_path,
                                 "size": st.st_size,
                                 "mtime": int(st.st_mtime),
-                                "is_dir": False
+                                "is_dir": False,
+                                "head_hash": get_head_hash(full_path),
+                                "sample_hash": get_sample_hash(full_path)
                             })
                         except OSError:
                             pass
@@ -198,7 +232,9 @@ class LanShareRequestHandler(SimpleHTTPRequestHandler):
                                 "rel_path": rel_item_path,
                                 "size": st.st_size,
                                 "mtime": int(st.st_mtime),
-                                "is_dir": False
+                                "is_dir": False,
+                                "head_hash": get_head_hash(full_path),
+                                "sample_hash": get_sample_hash(full_path)
                             })
                     except OSError:
                         pass
@@ -431,6 +467,19 @@ class LanShareRequestHandler(SimpleHTTPRequestHandler):
         self._notify_log(f"客户端开始上传: {rel_path} (起始偏移={start}, 字节数={length})")
 
         try:
+            # 判断是否需要覆盖写入 (由请求头 X-Overwrite 或 URL 查询参数或 0 字节文件触发)
+            parsed_url = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            overwrite_flag = self.headers.get("X-Overwrite", "0") == "1" or query_params.get("overwrite", ["0"])[0] == "1"
+            
+            if length == 0 or overwrite_flag:
+                if os.path.exists(dest_path):
+                    try:
+                        os.remove(dest_path)
+                    except Exception as e:
+                        self._notify_log(f"【覆盖警告】删除旧文件失败: {e}")
+                start = 0
+
             if start > 0:
                 if not os.path.exists(dest_path):
                     self.send_error(500, "No base file for resume")

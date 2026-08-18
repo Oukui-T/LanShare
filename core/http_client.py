@@ -9,6 +9,8 @@ import threading
 import subprocess
 from typing import Callable, Optional, List, Dict, Any
 
+from core.hash_utils import get_head_hash, get_sample_hash, get_breakpoint_prefix_hash
+
 _direct_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 def get_default_device_name() -> str:
@@ -143,6 +145,25 @@ class HttpClient:
             pass
         return 0
 
+    @staticmethod
+    def get_remote_file_probe(server_url: str, rel_path: str, offset: int, device_name: str = "", timeout: float = 3.0) -> Optional[Dict[str, Any]]:
+        dev = device_name or get_default_device_name()
+        clean_rel = rel_path.replace("\\", "/").lstrip("/")
+        encoded_path = urllib.parse.quote(clean_rel, safe="/")
+        encoded_dev = urllib.parse.quote(dev)
+        url = f"{server_url.rstrip('/')}/api/file/probe?path={encoded_path}&offset={offset}&device_name={encoded_dev}"
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "LanShareClient/4.4",
+                "X-Device-Name": urllib.parse.quote(dev)
+            })
+            with _direct_opener.open(req, timeout=timeout) as resp:
+                if resp.status == 200:
+                    return json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            pass
+        return None
+
 
 class DownloadWorker(threading.Thread):
     """基于底层 curl.exe 构建的下载核心 (支持相对路径与 X-Device-Name 权限请求头)"""
@@ -156,7 +177,8 @@ class DownloadWorker(threading.Thread):
         expected_size: int = 0,
         device_name: str = "",
         on_progress: Optional[Callable[[int, int, float, str], None]] = None,
-        on_finished: Optional[Callable[[bool, str], None]] = None
+        on_finished: Optional[Callable[[bool, str], None]] = None,
+        on_breakpoint_prompt: Optional[Callable[[str, int, int], str]] = None
     ):
         super().__init__(daemon=True)
         self.server_url = server_url.rstrip("/")
@@ -167,6 +189,7 @@ class DownloadWorker(threading.Thread):
         self.device_name = device_name or get_default_device_name()
         self.on_progress = on_progress
         self.on_finished = on_finished
+        self.on_breakpoint_prompt = on_breakpoint_prompt
         self._is_cancelled = False
         self._proc = None
 
@@ -193,10 +216,38 @@ class DownloadWorker(threading.Thread):
         remote_size = self.expected_size if self.expected_size > 0 else HttpClient.get_remote_file_size(self.server_url, self.rel_path, device_name=self.device_name)
         local_size = os.path.getsize(dest_path) if os.path.exists(dest_path) else 0
 
-        if remote_size > 0 and local_size == remote_size:
+        overwrite_flag = False
+        if local_size > 0 and remote_size > 0 and local_size < remote_size:
+            if local_size <= 4096:
+                overwrite_flag = True
+            else:
+                probe = HttpClient.get_remote_file_probe(self.server_url, self.rel_path, local_size, self.device_name)
+                if probe:
+                    remote_head = probe.get("head_hash", "")
+                    remote_prefix = probe.get("prefix_hash", "")
+                    local_head = get_head_hash(dest_path)
+                    local_prefix = get_breakpoint_prefix_hash(dest_path, local_size)
+                    
+                    if local_head and local_prefix and local_head == remote_head and local_prefix == remote_prefix:
+                        if self.on_breakpoint_prompt:
+                            choice = self.on_breakpoint_prompt(self.filename, local_size, remote_size)
+                            if choice == "skip":
+                                if self.on_finished: self.on_finished(True, f"已跳过传输 ({remote_size} 字节)")
+                                return
+                            elif choice == "overwrite":
+                                overwrite_flag = True
+                    else:
+                        overwrite_flag = True
+        elif remote_size > 0 and local_size == remote_size:
             if self.on_progress: self.on_progress(remote_size, remote_size, 0.0, "文件已完整存在")
             if self.on_finished: self.on_finished(True, f"文件已完整存在 ({remote_size} 字节)")
             return
+
+        if overwrite_flag:
+            try:
+                os.remove(dest_path)
+            except Exception:
+                pass
 
         try:
             CREATE_NO_WINDOW = 0x08000000
@@ -253,6 +304,14 @@ class DownloadWorker(threading.Thread):
                 return
 
             if self._proc.returncode == 0 and (remote_size == 0 or final_local_size == remote_size):
+                probe = HttpClient.get_remote_file_probe(self.server_url, self.rel_path, 0, self.device_name)
+                if probe:
+                    remote_sample = probe.get("sample_hash", "")
+                    local_sample = get_sample_hash(dest_path)
+                    if remote_sample and local_sample and remote_sample != local_sample:
+                        if self.on_finished: self.on_finished(False, "文件传输完成但特征校验失败 (文件可能已损坏)")
+                        return
+                
                 if self.on_progress: self.on_progress(final_local_size, final_local_size, 0.0, "下载完成")
                 if self.on_finished: self.on_finished(True, f"下载成功 ({final_local_size} 字节)")
             else:
@@ -272,7 +331,8 @@ class UploadWorker(threading.Thread):
         rel_path: Optional[str] = None,
         device_name: str = "",
         on_progress: Optional[Callable[[int, int, float, str], None]] = None,
-        on_finished: Optional[Callable[[bool, str], None]] = None
+        on_finished: Optional[Callable[[bool, str], None]] = None,
+        on_breakpoint_prompt: Optional[Callable[[str, int, int], str]] = None
     ):
         super().__init__(daemon=True)
         self.server_url = server_url.rstrip("/")
@@ -282,6 +342,7 @@ class UploadWorker(threading.Thread):
         self.device_name = device_name or get_default_device_name()
         self.on_progress = on_progress
         self.on_finished = on_finished
+        self.on_breakpoint_prompt = on_breakpoint_prompt
         self._is_cancelled = False
         self._proc = None
 
@@ -304,12 +365,37 @@ class UploadWorker(threading.Thread):
         
         remote_size = HttpClient.get_remote_file_size(self.server_url, self.rel_path, device_name=self.device_name)
         
-        if remote_size > 0 and remote_size == local_size:
+        overwrite_flag = False
+        if remote_size > 0 and local_size > 0 and remote_size < local_size:
+            if remote_size <= 4096:
+                overwrite_flag = True
+            else:
+                probe = HttpClient.get_remote_file_probe(self.server_url, self.rel_path, remote_size, self.device_name)
+                if probe:
+                    remote_head = probe.get("head_hash", "")
+                    remote_prefix = probe.get("prefix_hash", "")
+                    local_head = get_head_hash(self.local_filepath)
+                    local_prefix = get_breakpoint_prefix_hash(self.local_filepath, remote_size)
+                    
+                    if local_head and local_prefix and local_head == remote_head and local_prefix == remote_prefix:
+                        if self.on_breakpoint_prompt:
+                            choice = self.on_breakpoint_prompt(self.filename, remote_size, local_size)
+                            if choice == "skip":
+                                if self.on_finished: self.on_finished(True, f"已跳过推送 ({local_size} 字节)")
+                                return
+                            elif choice == "overwrite":
+                                overwrite_flag = True
+                    else:
+                        overwrite_flag = True
+        elif remote_size > 0 and remote_size == local_size:
             if self.on_progress: self.on_progress(local_size, local_size, 0.0, "服务端已存在完整文件")
             if self.on_finished: self.on_finished(True, f"推送上传成功 ({local_size} 字节)")
             return
 
         target_url = f"{self.server_url}/upload/{encoded_rel_path}"
+        if overwrite_flag:
+            target_url += "?overwrite=1"
+        
         
         try:
             CREATE_NO_WINDOW = 0x08000000
@@ -371,6 +457,14 @@ class UploadWorker(threading.Thread):
                 return
 
             if self._proc.returncode == 0 and (local_size == 0 or final_remote == local_size):
+                probe = HttpClient.get_remote_file_probe(self.server_url, self.rel_path, 0, self.device_name)
+                if probe:
+                    remote_sample = probe.get("sample_hash", "")
+                    local_sample = get_sample_hash(self.local_filepath)
+                    if remote_sample and local_sample and remote_sample != local_sample:
+                        if self.on_finished: self.on_finished(False, "文件推送完成但远端特征校验失败 (文件可能已损坏)")
+                        return
+                
                 if self.on_progress: self.on_progress(local_size, local_size, 0.0, "上传完成")
                 if self.on_finished: self.on_finished(True, f"推送上传成功 ({local_size} 字节)")
             else:
