@@ -78,7 +78,7 @@ LanShare 专为解决办公网、家庭 WiFi、交换机有线网以及双机网
 
 | 程序模块 | 包含版本 | 适用场景 | 权限要求 |
 | :--- | :--- | :--- | :--- |
-| **客户端分发包** | • `LanShareClient.exe`<br>• `LanShareClient_debug.exe` | 普通办公电脑、受限终端（下载与推送） | **普通用户权限**（零提权弹窗） |
+| **客户端分发包** | • `LanShareClient.exe`<br>• `LanShareClient_debug.exe` | 普通电脑、无管理员权限电脑（下载与推送） | **普通用户权限**（零提权弹窗） |
 | **服务端分发包** | • `LanShareServer.exe`<br>• `LanShareServer_debug.exe` | 共享文件所在的主机/服务器 | **管理员权限**（自动放行防火墙） |
 
 > 💡 **版本说明**：
