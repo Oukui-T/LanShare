@@ -1,4 +1,4 @@
-﻿# 1. 局部 Python 虚拟环境 (实际存在)
+# 1. 局部 Python 虚拟环境 (实际存在)
 .venv/
 
 # 2. 局部 Agent 与 Skill 技能包 (实际存在)
@@ -16,3 +16,8 @@ tests/
 # 5. Python 运行期缓存与编译字节码 (实际产生)
 __pycache__/
 *.pyc
+
+# 6. 文档过滤：忽略 docs 下的开发规格与内部设计文档，仅保留用户使用手册目录 (docs/manual)
+docs/*
+!docs/manual/
+!docs/manual/**
