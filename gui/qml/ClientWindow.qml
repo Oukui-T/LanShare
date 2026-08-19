@@ -1703,6 +1703,7 @@ ApplicationWindow {
 
                 Button {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     font.pixelSize: 13
                     font.bold: true
                     background: Rectangle {
@@ -1724,6 +1725,7 @@ ApplicationWindow {
 
                 Button {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     font.pixelSize: 13
                     font.bold: true
                     background: Rectangle {
@@ -1745,6 +1747,7 @@ ApplicationWindow {
 
                 Button {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     text: "▶️ 断点续传"
                     font.pixelSize: 13
                     font.bold: true
