@@ -15,6 +15,29 @@ ApplicationWindow {
     // 显式挂载 Style 属性于根节点，杜绝 Delegate 作用域下的 undefined 警告
     readonly property Style style: Style {}
 
+    // 根据文件名后缀获取专属图标
+    function getFileIcon(filename) {
+        if (!filename) return "📄";
+        var parts = filename.split('.');
+        if (parts.length <= 1) return "📄";
+        var ext = parts.pop().toLowerCase();
+        
+        switch (ext) {
+            case "png": case "jpg": case "jpeg": case "gif": case "bmp": case "webp": case "svg": case "ico": return "🖼️";
+            case "mp4": case "mkv": case "avi": case "mov": case "wmv": case "flv": return "🎬";
+            case "mp3": case "wav": case "flac": case "aac": case "ogg": return "🎵";
+            case "doc": case "docx": return "📝";
+            case "xls": case "xlsx": case "csv": return "📊";
+            case "ppt": case "pptx": return "🪧";
+            case "pdf": return "📕";
+            case "txt": case "md": case "json": case "xml": case "log": case "yaml": case "ini": return "📄";
+            case "py": case "js": case "html": case "css": case "cpp": case "c": case "java": case "go": case "rs": case "sh": case "bat": case "qml": return "💻";
+            case "zip": case "rar": case "7z": case "tar": case "gz": return "📦";
+            case "exe": case "msi": case "apk": case "dmg": case "iso": case "dll": return "⚙️";
+            default: return "📄";
+        }
+    }
+
     // 全局消息提示条
     Rectangle {
         id: toast
@@ -545,6 +568,7 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             clip: true
+                            boundsBehavior: Flickable.StopAtBounds
                             model: bridge ? bridge.remoteFiles : []
                             spacing: 4
 
@@ -595,7 +619,7 @@ ApplicationWindow {
                                     spacing: 12
 
                                     Text {
-                                        text: modelData && modelData.is_dir ? ("📁 " + modelData.name) : ("📄 " + (modelData ? modelData.name : ""))
+                                        text: modelData && modelData.is_dir ? ("📁 " + modelData.name) : (root.getFileIcon(modelData ? modelData.name : "") + " " + (modelData ? modelData.name : ""))
                                         font.pixelSize: 12
                                         font.bold: modelData && modelData.is_dir ? true : false
                                         color: modelData && modelData.is_dir ? root.style.primary : root.style.textPrimary
@@ -910,7 +934,7 @@ ApplicationWindow {
                                     spacing: 12
 
                                     Text {
-                                        text: modelData && modelData.is_dir ? ("📁 " + modelData.name) : ("📄 " + (modelData ? modelData.name : ""))
+                                        text: modelData && modelData.is_dir ? ("📁 " + modelData.name) : (root.getFileIcon(modelData ? modelData.name : "") + " " + (modelData ? modelData.name : ""))
                                         font.pixelSize: 12
                                         font.bold: modelData && modelData.is_dir ? true : false
                                         color: modelData && modelData.is_dir ? root.style.primary : root.style.textPrimary
