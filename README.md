@@ -5,7 +5,7 @@
 > **专为局域网大文件（GB/TB 级）与多级文件夹高速互传打造的现代化桌面工具。**  
 > 纯净免安装 · 100% 还原目录树 · 工业级断点续传 · 动态权限安全沙箱
 
-[![Version](https://img.shields.io/badge/version-4.3.0-blue.svg)](https://github.com/Oukui-T/LanShare/releases)
+[![Version](https://img.shields.io/badge/version-4.3.2-blue.svg)](https://github.com/Oukui-T/LanShare/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-lightgrey.svg)](https://github.com/Oukui-T/LanShare)
 [![Python](https://img.shields.io/badge/python-3.7+-green.svg)](https://www.python.org/)
 [![GUI](https://img.shields.io/badge/GUI-PySide6%20%2F%20QML-orange.svg)](https://doc.qt.io/qtforpython/)
@@ -139,7 +139,7 @@ LanShare/
 
 1. 确认服务端已点击「🚀 启动服务」并且状态显示为“运行中”。
 2. 确认两台电脑处于同一局域网（如连接同一路由器 WiFi 或插在同一交换机上）。
-3. 若局域网路由器开启了“AP 隔离”或禁用了广播，可在客户端顶部输入框**直接手动输入服务端的 IP 地址**（例如 `192.168.1.100:8080`）点击连接。
+3. 若局域网路由器开启了“AP 隔离”或禁用了广播，可在客户端顶部输入框**直接手动输入服务端的 IP 地址**（例如 `192.168.1.100:9527`）点击连接。
 </details>
 
 <details>
