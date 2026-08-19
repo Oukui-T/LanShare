@@ -25,11 +25,11 @@ class ConfigManager:
             self.settings.sync()
     
     def get_server_port(self) -> int:
-        val = self.settings.value("server/port", 8080)
+        val = self.settings.value("server/port", 9527)
         try:
             return int(val)
         except (ValueError, TypeError):
-            return 8080
+            return 9527
     
     def set_server_port(self, port: int):
         self.settings.setValue("server/port", int(port))

@@ -41,8 +41,8 @@ def format_duration(seconds: int) -> str:
         sec = s % 60
         return f"{h:02d}:{m:02d}:{sec:02d}"
 
-def parse_host_port(raw: str, default_port: int = 8080):
-    """智能解析用户输入的地址，自动分离 IP 和端口，未输端口时默认 8080"""
+def parse_host_port(raw: str, default_port: int = 9527):
+    """智能解析用户输入的地址，自动分离 IP 和端口，未输端口时默认 9527"""
     s = (raw or "").strip().replace("http://", "").replace("https://", "").rstrip("/")
     if not s:
         return "", default_port
