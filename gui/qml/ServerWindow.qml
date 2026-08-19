@@ -133,7 +133,7 @@ ApplicationWindow {
                         font.bold: true
                     }
                     Text {
-                        text: "v4.3 权限认证版 · 4位动态验证码 · 设备白名单授权"
+                        text: "v4.3.2 权限认证版 · 4位动态验证码 · 设备白名单授权"
                         color: style.textSecondary
                         font.family: style.fontFamily
                         font.pixelSize: 11
@@ -403,10 +403,30 @@ ApplicationWindow {
                         }
                     }
 
-                    Text {
-                        text: "(修改后自动保存并生效，默认推荐 9527)"
-                        color: style.textMuted
-                        font.pixelSize: 11
+                    // 悬浮提示图标
+                    Rectangle {
+                        width: 16
+                        height: 16
+                        radius: 8
+                        color: "transparent"
+                        border.color: portHover.hovered ? style.textSecondary : style.textMuted
+                        border.width: 1
+                        
+                        Text {
+                            anchors.centerIn: parent
+                            text: "!"
+                            color: portHover.hovered ? style.textSecondary : style.textMuted
+                            font.pixelSize: 11
+                        }
+                        
+                        HoverHandler {
+                            id: portHover
+                            cursorShape: Qt.PointingHandCursor
+                        }
+                        
+                        ToolTip.visible: portHover.hovered
+                        ToolTip.text: "修改后自动保存并生效，默认推荐 9527"
+                        ToolTip.delay: 100
                     }
 
                     Item { Layout.fillWidth: true }
