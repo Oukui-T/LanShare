@@ -537,7 +537,7 @@ class HttpShareServer:
     def __init__(
         self,
         bind_ip: str = "0.0.0.0",
-        port: int = 8080,
+        port: int = 9527,
         share_dir: str = ".",
         log_callback: Optional[Callable[[str], None]] = None,
         auth_manager: Optional[ServerAuthManager] = None

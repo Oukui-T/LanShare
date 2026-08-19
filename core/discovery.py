@@ -189,7 +189,7 @@ class DiscoveryClient:
                     json_str = text[len(MAGIC_OFFER_PREFIX):]
                     info = json.loads(json_str)
                     server_ip = addr[0]
-                    server_port = info.get("port", 8080)
+                    server_port = info.get("port", 9527)
                     key = f"{server_ip}:{server_port}"
                     if key not in discovered:
                         discovered[key] = {

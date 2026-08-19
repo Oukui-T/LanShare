@@ -105,7 +105,7 @@ class ServerBridge(QObject):
 
     @port.setter
     def port(self, val: int):
-        val = int(val) if val else 8080
+        val = int(val) if val else 9527
         if 1 <= val <= 65535 and val != self._port:
             old_port = self._port
             self._port = int(val)

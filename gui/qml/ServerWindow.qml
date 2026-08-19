@@ -140,6 +140,41 @@ ApplicationWindow {
                     }
                 }
 
+                // 运行状态指示徽章
+                Rectangle {
+                    width: 88
+                    height: 30
+                    radius: 15
+                    color: bridge && bridge.isRunning ? style.successBg : style.errorBg
+                    border.color: bridge && bridge.isRunning ? style.successBorder : style.errorBorder
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 6
+                        Rectangle {
+                            width: 8
+                            height: 8
+                            radius: 4
+                            color: bridge && bridge.isRunning ? style.success : style.error
+                            anchors.verticalCenter: parent.verticalCenter
+                            SequentialAnimation on opacity {
+                                running: bridge && bridge.isRunning
+                                loops: Animation.Infinite
+                                NumberAnimation { from: 0.3; to: 1.0; duration: 700 }
+                                NumberAnimation { from: 1.0; to: 0.3; duration: 700 }
+                            }
+                        }
+                        Text {
+                            text: bridge && bridge.isRunning ? "运行中" : "已停止"
+                            color: bridge && bridge.isRunning ? style.success : style.error
+                            font.family: style.fontFamily
+                            font.pixelSize: 12
+                            font.bold: true
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+
                 // 验证码查看与管理按键 (宽度自适应动画)
                 Button {
                     id: btnAuthCode
@@ -190,41 +225,6 @@ ApplicationWindow {
 
                     onClicked: {
                         authModal.visible = true;
-                    }
-                }
-
-                // 运行状态指示徽章
-                Rectangle {
-                    width: 88
-                    height: 30
-                    radius: 15
-                    color: bridge && bridge.isRunning ? style.successBg : style.errorBg
-                    border.color: bridge && bridge.isRunning ? style.successBorder : style.errorBorder
-
-                    Row {
-                        anchors.centerIn: parent
-                        spacing: 6
-                        Rectangle {
-                            width: 8
-                            height: 8
-                            radius: 4
-                            color: bridge && bridge.isRunning ? style.success : style.error
-                            anchors.verticalCenter: parent.verticalCenter
-                            SequentialAnimation on opacity {
-                                running: bridge && bridge.isRunning
-                                loops: Animation.Infinite
-                                NumberAnimation { from: 0.3; to: 1.0; duration: 700 }
-                                NumberAnimation { from: 1.0; to: 0.3; duration: 700 }
-                            }
-                        }
-                        Text {
-                            text: bridge && bridge.isRunning ? "运行中" : "已停止"
-                            color: bridge && bridge.isRunning ? style.success : style.error
-                            font.family: style.fontFamily
-                            font.pixelSize: 12
-                            font.bold: true
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
                     }
                 }
 
@@ -383,7 +383,7 @@ ApplicationWindow {
                             anchors.margins: 4
                             verticalAlignment: TextInput.AlignVCenter
                             horizontalAlignment: TextInput.AlignHCenter
-                            text: bridge ? bridge.port.toString() : "8080"
+                            text: bridge ? bridge.port.toString() : "9527"
                             color: style.textPrimary
                             font.family: style.fontFamily
                             font.pixelSize: 13
@@ -404,7 +404,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: "(修改后自动保存并生效，默认推荐 8080)"
+                        text: "(修改后自动保存并生效，默认推荐 9527)"
                         color: style.textMuted
                         font.pixelSize: 11
                     }
@@ -417,7 +417,7 @@ ApplicationWindow {
         // 3. 本机可用 IP 列表
         Rectangle {
             Layout.fillWidth: true
-            height: 110
+            height: 125
             color: style.bgCard
             radius: style.radiusMd
             border.color: style.borderCard
