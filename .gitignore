@@ -22,3 +22,7 @@ __pycache__/
 docs/*
 !docs/manual/
 !docs/manual/**
+
+# 7. 忽略项目打包与编译脚本（不对外开源编译工具链）
+build_client.py
+build_server.py
